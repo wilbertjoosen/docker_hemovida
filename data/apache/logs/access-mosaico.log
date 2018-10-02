@@ -1,0 +1,7 @@
+172.23.0.1 - - [07/Jun/2018:17:12:20 +0000] "GET / HTTP/1.1" 200 657 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+172.23.0.1 - - [07/Jun/2018:17:12:20 +0000] "GET /icons/blank.gif HTTP/1.1" 200 431 "http://mosaico.local/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+172.23.0.1 - - [07/Jun/2018:17:12:20 +0000] "GET /icons/folder.gif HTTP/1.1" 200 509 "http://mosaico.local/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+172.23.0.1 - - [07/Jun/2018:17:12:20 +0000] "GET /favicon.ico HTTP/1.1" 404 228 "http://mosaico.local/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+172.23.0.1 - - [07/Jun/2018:17:12:23 +0000] "GET /se/ HTTP/1.1" 500 510 "http://mosaico.local/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+172.23.0.1 - - [07/Jun/2018:17:13:53 +0000] "GET /se/ HTTP/1.1" 404 497 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
+172.23.0.1 - - [07/Jun/2018:17:13:56 +0000] "GET / HTTP/1.1" 500 348 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36"
