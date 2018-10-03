@@ -16,6 +16,7 @@ COPY conf/ /opt/docker/
 RUN set -x \
     # Install apache
     && apt-install \
+        vim \
         apache2 \
     && sed -ri ' \
         s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; \
@@ -37,9 +38,6 @@ ENV WEB_DOCUMENT_ROOT=/var/www/
 EXPOSE 80
 
 WORKDIR /var/www/
-
-RUN touch /var/log/php-errors.log
-RUN chown www-data:www-data /var/log/php-errors.log
 
 ADD vhost.conf /etc/apache2/sites-enabled/vhost.conf
 

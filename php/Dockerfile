@@ -74,6 +74,8 @@ RUN apt-get install zip unzip libaio1 \
 #adiciona configurações customizadas
 COPY custom.ini /usr/local/etc/php/conf.d/custom.ini
 RUN usermod -u 1000 www-data
+RUN touch /var/log/php-errors.log \
+&& chmod -Rf 777 /var/log/php-errors.log
 
 WORKDIR /var/www
 
