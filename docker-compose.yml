@@ -38,6 +38,8 @@ services:
         dockerfile: "Dockerfile"
       volumes_from:
         - applications
+      volumes:
+        - ./data/php/conf/custom.ini:/usr/local/etc/php/conf.d/custom.ini
       expose:
         - "9000"
         - "4200"
