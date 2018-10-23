@@ -7,7 +7,7 @@ RUN apt-get update && \
         libz-dev \
         libpq-dev \
         libjpeg-dev \
-        libpng12-dev \
+        libpng-dev \
         libfreetype6-dev \
         libssl-dev \
         libmcrypt-dev \
@@ -19,6 +19,9 @@ RUN docker-php-ext-install mcrypt
 # Install the PHP pdo_mysql extention
 RUN docker-php-ext-install mysqli \
     && docker-php-ext-install pdo_mysql
+
+RUN export http_proxy='http://proxy.saude.gov:80'
+RUN export https_proxy='http://proxy.saude.gov:80'
 
 #####################################
 # gd:
@@ -32,10 +35,15 @@ RUN docker-php-ext-install gd && \
         --with-freetype-dir=/usr/include/freetype2 && \
     docker-php-ext-install gd
 
+RUN apt-get update
+RUN apt-get -y install software-properties-common
+RUN apt-add-repository -y ppa:ondrej/php
+RUN apt-get update
+
 # Instala o SOAP
 RUN rm /etc/apt/preferences.d/no-debian-php && \
     apt-get -y update && \
-    apt-get -y install libxml2-dev php-soap && \
+    apt-get -y install libxml2-dev php5.6-soap && \
     docker-php-ext-install soap
 
 #Habilita a extensão zip
@@ -43,16 +51,17 @@ RUN docker-php-ext-install zip
 
 RUN cd /usr/src && \
     tar -xvf php.tar.xz && \
-    cp /usr/src/php-5.6.36/php.ini-development /usr/local/etc/php/php.ini
+    cp /usr/src/php-5.6.38/php.ini-development /usr/local/etc/php/php.ini
 
 # Instala o Xdebug
-RUN  apt-get install -y php5-xdebug
+RUN apt-get install -y php5.6-xdebug
 COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 
 #####################################
 # ORACLE:
 #####################################
+RUN pear config-set http_proxy http://proxy.saude.gov/
 COPY ./instantclient-basic-linux.x64-12.2.0.1.0.zip /tmp
 COPY ./instantclient-sdk-linux.x64-12.2.0.1.0.zip /tmp
 COPY ./instantclient-sqlplus-linux.x64-12.2.0.1.0.zip /tmp
@@ -77,6 +86,11 @@ RUN usermod -u 1000 www-data
 RUN touch /var/log/php-errors.log \
 && chmod -Rf 777 /var/log/php-errors.log
 
+#####################################
+# WKHHTML:
+#####################################
+COPY wkhtmltox_0.12.5-1.xenial_amd64.deb /tmp
+RUN dpkg -i /tmp/wkhtmltox_0.12.5-1.xenial_amd64.deb
 WORKDIR /var/www
 
 CMD ["php-fpm"]
