@@ -13,15 +13,27 @@ RUN apt-get update && \
         libmcrypt-dev \
         vim
 
+#####################################
+# ORACLE:
+#####################################
+# Install the Oracle Instant Client
+ADD oracle-instantclient12.1-basic_12.1.0.2.0-2_amd64.deb /tmp
+ADD oracle-instantclient12.1-devel_12.1.0.2.0-2_amd64.deb /tmp
+ADD oracle-instantclient12.1-sqlplus_12.1.0.2.0-2_amd64.deb /tmp
+RUN dpkg -i /tmp/oracle-instantclient12.1-basic_12.1.0.2.0-2_amd64.deb
+RUN dpkg -i /tmp/oracle-instantclient12.1-devel_12.1.0.2.0-2_amd64.deb
+RUN dpkg -i /tmp/oracle-instantclient12.1-sqlplus_12.1.0.2.0-2_amd64.deb
+RUN rm -rf /tmp/oracle-instantclient12.1-*.deb
+
+RUN apt-get install libaio-dev -y
+RUN echo 'instantclient,/usr/local/instantclient' | pecl install oci8
+
 # Install the PHP mcrypt extention
 RUN docker-php-ext-install mcrypt
 
 # Install the PHP pdo_mysql extention
 RUN docker-php-ext-install mysqli \
     && docker-php-ext-install pdo_mysql
-
-RUN export http_proxy='http://proxy.saude.gov:80'
-RUN export https_proxy='http://proxy.saude.gov:80'
 
 #####################################
 # gd:
@@ -35,15 +47,9 @@ RUN docker-php-ext-install gd && \
         --with-freetype-dir=/usr/include/freetype2 && \
     docker-php-ext-install gd
 
-RUN apt-get update
-RUN apt-get -y install software-properties-common
-RUN apt-add-repository -y ppa:ondrej/php
-RUN apt-get update
-
 # Instala o SOAP
-RUN rm /etc/apt/preferences.d/no-debian-php && \
-    apt-get -y update && \
-    apt-get -y install libxml2-dev php5.6-soap && \
+RUN apt-get -y update && \
+    apt-get -y install libxml2-dev && \
     docker-php-ext-install soap
 
 #Habilita a extensão zip
@@ -51,37 +57,23 @@ RUN docker-php-ext-install zip
 
 RUN cd /usr/src && \
     tar -xvf php.tar.xz && \
-    cp /usr/src/php-5.6.38/php.ini-development /usr/local/etc/php/php.ini
+    cp /usr/src/php-5.6.40/php.ini-development /usr/local/etc/php/php.ini
 
 # Instala o Xdebug
-RUN apt-get install -y php5.6-xdebug
+RUN pecl install xdebug-2.5.5 && \
+    docker-php-ext-enable xdebug
 COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
+# Set up the Oracle environment variables
+ENV LD_LIBRARY_PATH /usr/lib/oracle/12.1/client64/lib/
+ENV ORACLE_HOME /usr/lib/oracle/12.1/client64/lib/
 
-#####################################
-# ORACLE:
-#####################################
-RUN pear config-set http_proxy http://proxy.saude.gov/
-COPY ./instantclient-basic-linux.x64-12.2.0.1.0.zip /tmp
-COPY ./instantclient-sdk-linux.x64-12.2.0.1.0.zip /tmp
-COPY ./instantclient-sqlplus-linux.x64-12.2.0.1.0.zip /tmp
-COPY oci8.ini /usr/local/etc/php/conf.d/oci8.ini
-RUN apt-get install zip unzip libaio1 \
-     && mkdir /opt/oracle \
-     && cd /opt/oracle && \
-     unzip /tmp/instantclient-basic-linux.x64-12.2.0.1.0.zip -d /opt/oracle && \
-     unzip /tmp/instantclient-sdk-linux.x64-12.2.0.1.0.zip -d /opt/oracle && \
-     ln -s /opt/oracle/instantclient_12_2/libclntsh.so.12.1 /opt/oracle/instantclient_12_2/libclntsh.so && \
-     ln -s /opt/oracle/instantclient_12_2/libclntshcore.so.12.1 /opt/oracle/instantclient_12_2/libclntshcore.so && \
-     ln -s /opt/oracle/instantclient_12_2/libocci.so.12.1 /opt/oracle/instantclient_12_2/libocci.so && \
-     rm -rf /opt/oracle/*.zip && \
-     echo 'instantclient,/opt/oracle/instantclient_12_2/' | pecl install oci8-2.0.12 && \
-     docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/opt/oracle/instantclient_12_2,12.1 && \
-     docker-php-ext-install pdo_oci && \
-     docker-php-ext-enable oci8
+# Install the OCI8 PHP extension
+RUN echo 'instantclient,/usr/lib/oracle/12.1/client64/lib' | pecl install -f oci8-2.0.8
+RUN echo "extension=oci8.so" > /usr/local/etc/php/conf.d/30-oci8.ini
 
 #adiciona configurações customizadas
-COPY custom.ini /usr/local/etc/php/conf.d/custom.ini
+#OPY custom.ini /usr/local/etc/php/conf.d/custom.ini
 RUN usermod -u 1000 www-data
 RUN touch /var/log/php-errors.log \
 && chmod -Rf 777 /var/log/php-errors.log
@@ -89,9 +81,9 @@ RUN touch /var/log/php-errors.log \
 #####################################
 # WKHHTML:
 #####################################
-COPY wkhtmltox_0.12.5-1.xenial_amd64.deb /tmp
-RUN dpkg -i /tmp/wkhtmltox_0.12.5-1.xenial_amd64.deb
-WORKDIR /var/www
+#COPY wkhtmltox_0.12.5-1.xenial_amd64.deb /tmp
+#RUN dpkg -i /tmp/wkhtmltox_0.12.5-1.xenial_amd64.deb
+#WORKDIR /var/www
 
 CMD ["php-fpm"]
 
