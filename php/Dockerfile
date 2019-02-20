@@ -1,4 +1,4 @@
-FROM php:5.6-fpm
+FROM php:5.6.40-fpm-jessie
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -20,9 +20,6 @@ RUN docker-php-ext-install mcrypt
 RUN docker-php-ext-install mysqli \
     && docker-php-ext-install pdo_mysql
 
-RUN export http_proxy='http://proxy.saude.gov:80'
-RUN export https_proxy='http://proxy.saude.gov:80'
-
 #####################################
 # gd:
 #####################################
@@ -35,15 +32,10 @@ RUN docker-php-ext-install gd && \
         --with-freetype-dir=/usr/include/freetype2 && \
     docker-php-ext-install gd
 
-RUN apt-get update
-RUN apt-get -y install software-properties-common
-RUN apt-add-repository -y ppa:ondrej/php
-RUN apt-get update
-
 # Instala o SOAP
 RUN rm /etc/apt/preferences.d/no-debian-php && \
     apt-get -y update && \
-    apt-get -y install libxml2-dev php5.6-soap && \
+    apt-get -y install libxml2-dev php-soap && \
     docker-php-ext-install soap
 
 #Habilita a extensão zip
@@ -51,17 +43,16 @@ RUN docker-php-ext-install zip
 
 RUN cd /usr/src && \
     tar -xvf php.tar.xz && \
-    cp /usr/src/php-5.6.38/php.ini-development /usr/local/etc/php/php.ini
+    cp /usr/src/php-5.6.40/php.ini-development /usr/local/etc/php/php.ini
 
 # Instala o Xdebug
-RUN apt-get install -y php5.6-xdebug
+RUN  apt-get install -y php5-xdebug
 COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 
 #####################################
 # ORACLE:
 #####################################
-RUN pear config-set http_proxy http://proxy.saude.gov/
 COPY ./instantclient-basic-linux.x64-12.2.0.1.0.zip /tmp
 COPY ./instantclient-sdk-linux.x64-12.2.0.1.0.zip /tmp
 COPY ./instantclient-sqlplus-linux.x64-12.2.0.1.0.zip /tmp
@@ -75,6 +66,7 @@ RUN apt-get install zip unzip libaio1 \
      ln -s /opt/oracle/instantclient_12_2/libclntshcore.so.12.1 /opt/oracle/instantclient_12_2/libclntshcore.so && \
      ln -s /opt/oracle/instantclient_12_2/libocci.so.12.1 /opt/oracle/instantclient_12_2/libocci.so && \
      rm -rf /opt/oracle/*.zip && \
+     rm -rf /tmp/*.zip && \
      echo 'instantclient,/opt/oracle/instantclient_12_2/' | pecl install oci8-2.0.12 && \
      docker-php-ext-configure pdo_oci --with-pdo-oci=instantclient,/opt/oracle/instantclient_12_2,12.1 && \
      docker-php-ext-install pdo_oci && \
@@ -90,7 +82,14 @@ RUN touch /var/log/php-errors.log \
 # WKHHTML:
 #####################################
 COPY wkhtmltox_0.12.5-1.xenial_amd64.deb /tmp
-RUN dpkg -i /tmp/wkhtmltox_0.12.5-1.xenial_amd64.deb
+RUN apt-get update && \
+    apt-get install -y wget openssl wget xvfb libxrender1 fontconfig xfonts-75dpi && \
+    wget http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb && \
+    dpkg -i wkhtmltox-0.12.1.2_linux-jessie-amd64.deb
+
+RUN cp /usr/local/bin/wkhtmltopdf /usr/bin && \
+    cp /usr/local/bin/wkhtmltoimage /usr/bin
+
 WORKDIR /var/www
 
 CMD ["php-fpm"]

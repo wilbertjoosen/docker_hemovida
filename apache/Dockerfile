@@ -12,12 +12,12 @@ ENV WEB_DOCUMENT_ROOT=/app \
     WEB_PHP_SOCKET=""
 
 COPY conf/ /opt/docker/
-
+RUN apt-get update
 RUN set -x \
     # Install apache
     && apt-install \
         vim \
-        apache2 \
+        apache2 --fix-missing \
     && sed -ri ' \
         s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; \
         s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
