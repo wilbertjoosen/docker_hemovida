@@ -30,7 +30,8 @@ RUN docker-php-ext-install gd && \
         --enable-gd-native-ttf \
         --with-jpeg-dir=/usr/lib \
         --with-freetype-dir=/usr/include/freetype2 && \
-    docker-php-ext-install gd
+    docker-php-ext-install gd && \
+	docker-php-ext-enable gd
 
 # Instala o SOAP
 RUN rm /etc/apt/preferences.d/no-debian-php && \
@@ -39,7 +40,11 @@ RUN rm /etc/apt/preferences.d/no-debian-php && \
     docker-php-ext-install soap
 
 #Habilita a extensão zip
-RUN docker-php-ext-install zip
+RUN apt-get install -y \
+        libzip-dev \
+        zip \
+  && docker-php-ext-configure zip --with-libzip \
+  && docker-php-ext-install zip
 
 RUN cd /usr/src && \
     tar -xvf php.tar.xz && \
@@ -57,7 +62,7 @@ COPY ./instantclient-basic-linux.x64-12.2.0.1.0.zip /tmp
 COPY ./instantclient-sdk-linux.x64-12.2.0.1.0.zip /tmp
 COPY ./instantclient-sqlplus-linux.x64-12.2.0.1.0.zip /tmp
 COPY oci8.ini /usr/local/etc/php/conf.d/oci8.ini
-RUN apt-get install zip unzip libaio1 \
+RUN apt-get install -y zip unzip libaio1 \
      && mkdir /opt/oracle \
      && cd /opt/oracle && \
      unzip /tmp/instantclient-basic-linux.x64-12.2.0.1.0.zip -d /opt/oracle && \
