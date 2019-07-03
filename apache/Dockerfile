@@ -12,6 +12,7 @@ ENV WEB_DOCUMENT_ROOT=${DOCUMENT_ROOT}
 ENV WEB_PHP_TIMEOUT=${PHP_UPSTREAM_TIMEOUT}
 
 RUN a2enmod vhost_alias && \
+    a2enmod proxy_http  && \
 	service apache2 restart
 
 EXPOSE 80 443
